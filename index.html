@@ -5,55 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>100,000 Pixels Grid</title>
   <style>
-    body {
-      margin: 0;
-      background-color: #0d0d0d;
-      font-family: sans-serif;
-      color: white;
-      overflow: hidden;
-    }
+  body {
+    margin: 0;
+    background-color: #111;
+    font-family: sans-serif;
+    color: white;
+  }
 
-    h1 {
-      text-align: center;
-      padding: 20px;
-      font-size: 2em;
-      background: linear-gradient(to right, #ff00cc, #3333ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+  h1 {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.5em;
+    background: linear-gradient(to right, #ff00cc, #3333ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 
+  #pixelGrid {
+    display: grid;
+    grid-template-columns: repeat(250, 4px); /* 250x400 = 100,000 pixels */
+    width: 1000px;
+    margin: 0 auto;
+    overflow: auto;
+  }
+
+  .pixel {
+    width: 4px;
+    height: 4px;
+    background-color: #333;
+    border: 0.2px solid #1a1a1a;
+  }
+
+  .pixel img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  a.pixel-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (max-width: 768px) {
     #pixelGrid {
-      display: grid;
-      grid-template-columns: repeat(1000, 1fr);
-      width: 100vw;
-      height: calc(100vh - 60px);
+      transform: scale(1.5);
+      transform-origin: top center;
     }
-
-    .pixel {
-      width: 100%;
-      height: 100%;
-      background-color: #1a1a1a;
-      border: 0.1px solid #111;
-    }
-
-    .pixel img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    a.pixel-link {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-
-    @media (max-width: 768px) {
-      #pixelGrid {
-        transform: scale(0.2);
-        transform-origin: top left;
-      }
-    }
+  }
   </style>
 </head>
 <body>
