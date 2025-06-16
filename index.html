@@ -2,94 +2,110 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PixelVault – Own A Piece Of Internet History</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Return of Million Dollar Homepage</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .neon-title {
-      color: #ff00ff;
-      text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+    body {
+      margin: 0;
+      background-color: black;
+      font-family: sans-serif;
+      color: white;
+    }
+    .pixel-grid {
+      display: grid;
+      grid-template-columns: repeat(200, 1fr);
+      gap: 1px;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+      overflow-x: auto;
     }
     .pixel {
-      width: 6px;
-      height: 6px;
+      width: 10px;
+      height: 10px;
+      background-color: #1e40af;
+      transition: background-color 0.3s ease;
+    }
+    .pixel:hover {
+      background-color: #3b82f6;
+      cursor: pointer;
     }
     .pixel img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
-    .glow {
-      box-shadow: 0 0 3px rgba(255, 0, 255, 0.6);
+    .sold {
+      background-color: transparent !important;
+      padding: 0;
     }
-    .pixel-grid {
-      display: grid;
-      grid-template-columns: repeat(100, 1fr);
-      gap: 1px;
-      background-color: #222;
-      margin: auto;
-    }
-    @media (max-width: 768px) {
-      .pixel {
-        width: 4px;
-        height: 4px;
-      }
-      .pixel-grid {
-        grid-template-columns: repeat(50, 1fr);
-      }
+    .neon-glow {
+      color: #00ffff;
+      text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
     }
   </style>
 </head>
-<body class="bg-black text-white font-sans text-center">
+<body>
 
-  <h1 class="text-4xl md:text-6xl font-extrabold mt-8 neon-title">PixelVault — Own A Piece Of Internet History</h1>
-  <p class="text-lg text-gray-300 max-w-xl mx-auto mt-4 px-4">
-    Buy a pixel space. Add your logo. Link your site. Get seen. Forever.
-  </p>
-  <a href="https://orbiton4.gumroad.com/l/returnofmiliondollerhomrpage" target="_blank"
-     class="mt-6 inline-block px-6 py-3 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 font-bold text-white text-lg hover:scale-105 transition-transform">
-    Buy Your Spot
-  </a>
-  <div id="viewerCount" class="mt-4 text-purple-400 text-sm"></div>
+  <header class="text-center py-10">
+    <h1 class="text-4xl md:text-6xl font-bold neon-glow mb-2">Return of Million Dollar Homepage</h1>
+    <p class="text-gray-300 text-sm md:text-base mb-6 px-4 max-w-xl mx-auto">
+      100,000 interactive pixels. Click to explore brands. Be part of the viral wall.
+    </p>
+    <a href="https://orbiton4.gumroad.com/l/returnofmiliondollerhomrpage" target="_blank" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-full font-semibold hover:scale-105 transition">
+      Buy Your Pixels Now
+    </a>
+    <p id="viewerCount" class="text-sm text-purple-400 mt-4"></p>
+  </header>
 
-  <div id="pixelGrid" class="pixel-grid mt-10 max-w-full overflow-hidden"></div>
+  <main class="overflow-x-auto px-2">
+    <div id="pixelGrid" class="pixel-grid"></div>
+  </main>
 
-  <footer class="text-sm text-gray-500 mt-12 mb-6">© 2025 PixelVault — All Rights Reserved</footer>
+  <footer class="text-center text-gray-500 text-sm py-6">
+    &copy; <span id="year"></span> 100K Pixels – Built with nostalgia.
+  </footer>
 
   <script>
+    document.getElementById("year").innerText = new Date().getFullYear();
+
     const pixelGrid = document.getElementById("pixelGrid");
-    const totalPixels = 40000;
 
     const customers = [
-      { logo: "https://logo.clearbit.com/google.com", url: "https://google.com" },
-      { logo: "https://logo.clearbit.com/github.com", url: "https://github.com" },
-      { logo: "https://logo.clearbit.com/netflix.com", url: "https://netflix.com" },
-      { logo: "https://logo.clearbit.com/spotify.com", url: "https://spotify.com" },
-      { logo: "https://logo.clearbit.com/youtube.com", url: "https://youtube.com" }
+      { logo: "https://logo.clearbit.com/monday.com", url: "https://monday.com" },
+      { logo: "https://logo.clearbit.com/clickup.com", url: "https://clickup.com" },
+      { logo: "https://logo.clearbit.com/semrush.com", url: "https://semrush.com" },
+      { logo: "https://logo.clearbit.com/hubspot.com", url: "https://hubspot.com" },
+      { logo: "https://logo.clearbit.com/airbnb.com", url: "https://airbnb.com" }
     ];
 
-    for (let i = 0; i < totalPixels; i++) {
-      const pixel = document.createElement("div");
-      pixel.className = "pixel";
+    for (let i = 0; i < 40000; i++) {
+      const div = document.createElement("div");
+      div.classList.add("pixel");
 
       if (Math.random() < 0.02) {
         const customer = customers[Math.floor(Math.random() * customers.length)];
-        pixel.innerHTML = `<a href="${customer.url}" target="_blank" rel="noopener noreferrer"><img src="${customer.logo}" alt="logo" class="glow" /></a>`;
-      } else {
-        pixel.style.backgroundColor = "#333";
+        div.classList.add("sold");
+        div.innerHTML = `<a href="${customer.url}" target="_blank" rel="noopener"><img src="${customer.logo}" alt="logo" /></a>`;
       }
 
-      pixelGrid.appendChild(pixel);
+      pixelGrid.appendChild(div);
     }
 
-    // Live viewer simulation
+    // Fake Live Viewers
+    const viewer = document.getElementById("viewerCount");
     function updateViewerCount() {
-      const total = Math.floor(Math.random() * (18000 - 14000 + 1)) + 14000;
-      document.getElementById("viewerCount").innerHTML = `🔥 Live Viewers: <strong>${total.toLocaleString()}</strong>`;
+      const total = Math.floor(Math.random() * (16000 - 12500 + 1)) + 12500;
+      const us = Math.floor(total * 0.41);
+      const uk = Math.floor(total * 0.33);
+      const others = total - us - uk;
+
+      viewer.innerHTML = `🔥 Live Visitors: ${total.toLocaleString()} | 🇺🇸 US: ${us.toLocaleString()} | 🇬🇧 UK: ${uk.toLocaleString()} | 🌍 Others: ${others.toLocaleString()}`;
     }
-    setInterval(updateViewerCount, 3000);
+    setInterval(updateViewerCount, 5000);
     updateViewerCount();
   </script>
-
 </body>
 </html>
