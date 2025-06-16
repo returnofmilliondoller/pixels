@@ -47,6 +47,40 @@
     }
   </style>
 </head>
+  <script>
+const sheetURL = "https://opensheet.elk.sh/1faT9yyWmKfzFkpvUHzDfiA9b6BhCAj9CUxnOHEPU0-c/Form Responses 1";
+const pixelGrid = document.getElementById("pixelGrid");
+
+// Clear any existing grid
+pixelGrid.innerHTML = "";
+
+const totalPixels = 40000; // or whatever your grid size is
+
+async function loadPixels() {
+  const response = await fetch(sheetURL);
+  const data = await response.json();
+
+  for (let i = 0; i < totalPixels; i++) {
+    const pixel = document.createElement("div");
+    pixel.className = "aspect-square flex items-center justify-center p-0.5";
+
+    const customer = data[i % data.length]; // loop through data
+
+    if (customer.logo_url && customer.link) {
+      pixel.innerHTML = `
+        <a href="${customer.link}" target="_blank" rel="noopener noreferrer">
+          <img src="${customer.logo_url}" class="w-full h-full object-contain glow" />
+        </a>`;
+    } else {
+      pixel.innerHTML = `<div class="w-full h-full bg-blue-900 hover:bg-blue-700 cursor-pointer transition-colors glow"></div>`;
+    }
+
+    pixelGrid.appendChild(pixel);
+  }
+}
+
+loadPixels();
+  </script>
 <body>
 
   <header class="text-center py-10">
