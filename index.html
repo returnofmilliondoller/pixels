@@ -2,90 +2,94 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>100,000 Pixels Grid</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PixelVault – Own A Piece Of Internet History</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-  body {
-    margin: 0;
-    background-color: #111;
-    font-family: sans-serif;
-    color: white;
-  }
-
-  h1 {
-    text-align: center;
-    padding: 20px;
-    font-size: 1.5em;
-    background: linear-gradient(to right, #ff00cc, #3333ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  #pixelGrid {
-    display: grid;
-    grid-template-columns: repeat(250, 4px); /* 250x400 = 100,000 pixels */
-    width: 1000px;
-    margin: 0 auto;
-    overflow: auto;
-  }
-
-  .pixel {
-    width: 4px;
-    height: 4px;
-    background-color: #333;
-    border: 0.2px solid #1a1a1a;
-  }
-
-  .pixel img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  a.pixel-link {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  @media (max-width: 768px) {
-    #pixelGrid {
-      transform: scale(1.5);
-      transform-origin: top center;
+    .neon-title {
+      color: #ff00ff;
+      text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff, 0 0 20px #ff00ff;
     }
-  }
+    .pixel {
+      width: 6px;
+      height: 6px;
+    }
+    .pixel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .glow {
+      box-shadow: 0 0 3px rgba(255, 0, 255, 0.6);
+    }
+    .pixel-grid {
+      display: grid;
+      grid-template-columns: repeat(100, 1fr);
+      gap: 1px;
+      background-color: #222;
+      margin: auto;
+    }
+    @media (max-width: 768px) {
+      .pixel {
+        width: 4px;
+        height: 4px;
+      }
+      .pixel-grid {
+        grid-template-columns: repeat(50, 1fr);
+      }
+    }
   </style>
 </head>
-<body>
-  <h1>PixelVault — Own A Piece Of Internet History</h1>
-  <div id="pixelGrid"></div>
+<body class="bg-black text-white font-sans text-center">
+
+  <h1 class="text-4xl md:text-6xl font-extrabold mt-8 neon-title">PixelVault — Own A Piece Of Internet History</h1>
+  <p class="text-lg text-gray-300 max-w-xl mx-auto mt-4 px-4">
+    Buy a pixel space. Add your logo. Link your site. Get seen. Forever.
+  </p>
+  <a href="https://orbiton4.gumroad.com/l/returnofmiliondollerhomrpage" target="_blank"
+     class="mt-6 inline-block px-6 py-3 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 font-bold text-white text-lg hover:scale-105 transition-transform">
+    Buy Your Spot
+  </a>
+  <div id="viewerCount" class="mt-4 text-purple-400 text-sm"></div>
+
+  <div id="pixelGrid" class="pixel-grid mt-10 max-w-full overflow-hidden"></div>
+
+  <footer class="text-sm text-gray-500 mt-12 mb-6">© 2025 PixelVault — All Rights Reserved</footer>
 
   <script>
-    const grid = document.getElementById("pixelGrid");
-    const totalPixels = 100000;
+    const pixelGrid = document.getElementById("pixelGrid");
+    const totalPixels = 40000;
 
-    // Example: Pull logos + links from external source later
     const customers = [
-      { id: 1, logo: "https://picsum.photos/50?random=1", url: "https://example.com" },
-      { id: 2, logo: "https://picsum.photos/50?random=2", url: "https://another.com" }
+      { logo: "https://logo.clearbit.com/google.com", url: "https://google.com" },
+      { logo: "https://logo.clearbit.com/github.com", url: "https://github.com" },
+      { logo: "https://logo.clearbit.com/netflix.com", url: "https://netflix.com" },
+      { logo: "https://logo.clearbit.com/spotify.com", url: "https://spotify.com" },
+      { logo: "https://logo.clearbit.com/youtube.com", url: "https://youtube.com" }
     ];
 
     for (let i = 0; i < totalPixels; i++) {
       const pixel = document.createElement("div");
-      pixel.classList.add("pixel");
+      pixel.className = "pixel";
 
-      // 1 out of every 200 pixels is marked "sold"
-      if (Math.random() < 0.005) {
+      if (Math.random() < 0.02) {
         const customer = customers[Math.floor(Math.random() * customers.length)];
-        pixel.innerHTML = `
-          <a href="${customer.url}" target="_blank" class="pixel-link">
-            <img src="${customer.logo}" alt="Ad" />
-          </a>
-        `;
+        pixel.innerHTML = `<a href="${customer.url}" target="_blank" rel="noopener noreferrer"><img src="${customer.logo}" alt="logo" class="glow" /></a>`;
+      } else {
+        pixel.style.backgroundColor = "#333";
       }
 
-      grid.appendChild(pixel);
+      pixelGrid.appendChild(pixel);
     }
+
+    // Live viewer simulation
+    function updateViewerCount() {
+      const total = Math.floor(Math.random() * (18000 - 14000 + 1)) + 14000;
+      document.getElementById("viewerCount").innerHTML = `🔥 Live Viewers: <strong>${total.toLocaleString()}</strong>`;
+    }
+    setInterval(updateViewerCount, 3000);
+    updateViewerCount();
   </script>
+
 </body>
 </html>
