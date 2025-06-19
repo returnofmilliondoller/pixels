@@ -17,14 +17,12 @@
       display: grid;
       grid-template-columns: repeat(200, 1fr);
       gap: 1px;
-      width: 100%;
       max-width: 100%;
       margin: 0 auto;
-      overflow-x: auto;
     }
     .pixel {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       background-color: #1e40af;
       transition: background-color 0.3s ease;
     }
@@ -32,8 +30,14 @@
       background-color: #3b82f6;
       cursor: pointer;
     }
+    .sold img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
     .selected {
-      background-color: #facc15 !important;
+      background-color: #ec4899 !important;
     }
     .neon-glow {
       color: #00ffff;
@@ -44,19 +48,17 @@
 <body>
 
   <header class="text-center py-10">
-  <h1 class="text-4xl md:text-6xl font-bold neon-glow mb-2">Return of Million Dollar Homepage</h1>
-  <p class="text-gray-300 text-sm md:text-base mb-6 px-4 max-w-xl mx-auto">
-    100,000 interactive pixels. Click to explore brands. Be part of the viral wall.
-  </p>
-  <p class="text-purple-400 text-sm mb-2">Each pixel costs $1.5</p>
-  <div class="text-sm text-gray-300 mb-4">Selected Pixels: <span id="selectedCount">0</span></div>
-
-  <!-- ✅ FIXED PayPal Button Wrapper -->
-  <div class="flex justify-center w-full px-4">
-    <div id="paypal-button-container" class="w-full max-w-xs"></div>
-  </div>
-
-  <p id="viewerCount" class="text-sm text-purple-400 mt-4"></p>
+    <h1 class="text-4xl md:text-6xl font-bold neon-glow mb-2">Return of Million Dollar Homepage</h1>
+    <p class="text-gray-300 text-sm md:text-base mb-6 px-4 max-w-xl mx-auto">
+      100,000 interactive pixels. Click to explore brands. Be part of the viral wall.
+    </p>
+    <div class="text-center text-sm mb-2">
+      Each pixel costs <strong>$1.5</strong><br/>
+      <span id="selectedCount">Selected Pixels: 0</span> | 
+      <span id="totalCost">Total: $0.00</span>
+    </div>
+    <div id="paypal-button-container" class="flex justify-center mb-4"></div>
+    <p id="viewerCount" class="text-sm text-purple-400 mt-2"></p>
   </header>
 
   <main class="overflow-x-auto px-2">
@@ -71,55 +73,35 @@
     document.getElementById("year").innerText = new Date().getFullYear();
 
     const pixelGrid = document.getElementById("pixelGrid");
-    const selectedPixels = new Set();
     const selectedCountSpan = document.getElementById("selectedCount");
+    const totalCostSpan = document.getElementById("totalCost");
+    const pricePerPixel = 1.5;
+    const totalPixels = 40000;
+    const selected = [];
 
-    // Generate 40,000 pixels
-    for (let i = 0; i < 40000; i++) {
+    for (let i = 0; i < totalPixels; i++) {
       const div = document.createElement("div");
       div.classList.add("pixel");
-      div.dataset.id = i;
+      div.setAttribute("data-id", i + 1);
 
       div.addEventListener("click", () => {
         if (div.classList.contains("selected")) {
           div.classList.remove("selected");
-          selectedPixels.delete(i);
+          selected.splice(selected.indexOf(i + 1), 1);
         } else {
           div.classList.add("selected");
-          selectedPixels.add(i);
+          selected.push(i + 1);
         }
-        selectedCountSpan.innerText = selectedPixels.size;
+        updateSelectionInfo();
       });
 
       pixelGrid.appendChild(div);
     }
 
-    // PayPal Button
-    paypal.Buttons({
-      createOrder: function(data, actions) {
-        const pixelCount = selectedPixels.size;
-        const totalAmount = (pixelCount * 1.5).toFixed(2);
-
-        if (pixelCount === 0) {
-          alert("Please select at least one pixel before proceeding.");
-          return;
-        }
-
-        return actions.order.create({
-          purchase_units: [{
-            amount: {
-              value: totalAmount
-            }
-          }]
-        });
-      },
-      onApprove: function(data, actions) {
-        return actions.order.capture().then(function(details) {
-          alert('✅ Payment complete by ' + details.payer.name.given_name);
-          // You can now show a form or redirect to upload logo
-        });
-      }
-    }).render('#paypal-button-container');
+    function updateSelectionInfo() {
+      selectedCountSpan.textContent = `Selected Pixels: ${selected.length}`;
+      totalCostSpan.textContent = `Total: $${(selected.length * pricePerPixel).toFixed(2)}`;
+    }
 
     // Fake Live Viewers
     const viewer = document.getElementById("viewerCount");
@@ -128,11 +110,29 @@
       const us = Math.floor(total * 0.41);
       const uk = Math.floor(total * 0.33);
       const others = total - us - uk;
-
       viewer.innerHTML = `🔥 Live Visitors: ${total.toLocaleString()} | 🇺🇸 US: ${us.toLocaleString()} | 🇬🇧 UK: ${uk.toLocaleString()} | 🌍 Others: ${others.toLocaleString()}`;
     }
     setInterval(updateViewerCount, 5000);
     updateViewerCount();
+
+    // PayPal Button Setup
+    paypal.Buttons({
+      createOrder: function(data, actions) {
+        return actions.order.create({
+          purchase_units: [{
+            amount: {
+              value: (selected.length * pricePerPixel).toFixed(2)
+            }
+          }]
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+          const formLink = "https://docs.google.com/forms/d/e/1FAIpQLSf-VbSRxiSihC-TepZUF42GSyyYTXe_H9e0mLywOpEZqG-JyA/viewform";
+          window.location.href = formLink + "?pixels=" + encodeURIComponent(selected.join(','));
+        });
+      }
+    }).render('#paypal-button-container');
   </script>
 </body>
 </html>
