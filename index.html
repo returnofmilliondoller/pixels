@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Return of Million Dollar Homepage</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=AeEaJmreVA21maz2aNFi1FN-uXQQwD4VQxfq_WrVhSKwf0Ecs-t7SgSB5GZKvqAhvPNQu7FxH1e5tIIq&currency=USD"></script>
   <style>
     body {
       margin: 0;
@@ -31,15 +32,8 @@
       background-color: #3b82f6;
       cursor: pointer;
     }
-    .pixel img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .sold {
-      background-color: transparent !important;
-      padding: 0;
+    .selected {
+      background-color: #facc15 !important;
     }
     .neon-glow {
       color: #00ffff;
@@ -52,13 +46,12 @@
   <header class="text-center py-10">
     <h1 class="text-4xl md:text-6xl font-bold neon-glow mb-2">Return of Million Dollar Homepage</h1>
     <p class="text-gray-300 text-sm md:text-base mb-6 px-4 max-w-xl mx-auto">
-      40,000 interactive pixels. Click to explore brands. Be part of the viral wall.
+      100,000 interactive pixels. Click to explore brands. Be part of the viral wall.
     </p>
-    <a href="https://orbiton4.gumroad.com/l/returnofmiliondollerhomrpage" target="_blank" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-full font-semibold hover:scale-105 transition">
-      Buy Your Pixels Now – $1.5/pixel
-    </a>
-    <p class="text-sm text-purple-400 mt-2">Selected Pixels: <span id="selectedCount">0</span></p>
-    <p id="viewerCount" class="text-sm text-purple-400 mt-2"></p>
+    <p class="text-purple-400 text-sm mb-2">Each pixel costs $1.5</p>
+    <div class="text-sm text-gray-300 mb-4">Selected Pixels: <span id="selectedCount">0</span></div>
+    <div id="paypal-button-container" class="mb-6 flex justify-center"></div>
+    <p id="viewerCount" class="text-sm text-purple-400 mt-4"></p>
   </header>
 
   <main class="overflow-x-auto px-2">
@@ -73,43 +66,55 @@
     document.getElementById("year").innerText = new Date().getFullYear();
 
     const pixelGrid = document.getElementById("pixelGrid");
-    const selectedCount = document.getElementById("selectedCount");
-
-    const customers = [
-      { logo: "https://logo.clearbit.com/monday.com", url: "https://monday.com" },
-      { logo: "https://logo.clearbit.com/clickup.com", url: "https://clickup.com" },
-      { logo: "https://logo.clearbit.com/semrush.com", url: "https://semrush.com" },
-      { logo: "https://logo.clearbit.com/hubspot.com", url: "https://hubspot.com" },
-      { logo: "https://logo.clearbit.com/airbnb.com", url: "https://airbnb.com" }
-    ];
-
     const selectedPixels = new Set();
+    const selectedCountSpan = document.getElementById("selectedCount");
 
+    // Generate 40,000 pixels
     for (let i = 0; i < 40000; i++) {
       const div = document.createElement("div");
       div.classList.add("pixel");
-      div.setAttribute("data-id", i + 1);
+      div.dataset.id = i;
 
-      if (Math.random() < 0.02) {
-        const customer = customers[Math.floor(Math.random() * customers.length)];
-        div.classList.add("sold");
-        div.innerHTML = `<a href="${customer.url}" target="_blank" rel="noopener"><img src="${customer.logo}" alt="logo" /></a>`;
-      } else {
-        div.addEventListener("click", () => {
-          if (div.classList.contains("selected")) {
-            div.classList.remove("bg-green-500", "selected");
-            div.style.backgroundColor = "#1e40af";
-            selectedPixels.delete(div.getAttribute("data-id"));
-          } else {
-            div.classList.add("bg-green-500", "selected");
-            selectedPixels.add(div.getAttribute("data-id"));
-          }
-          selectedCount.textContent = selectedPixels.size;
-        });
-      }
+      div.addEventListener("click", () => {
+        if (div.classList.contains("selected")) {
+          div.classList.remove("selected");
+          selectedPixels.delete(i);
+        } else {
+          div.classList.add("selected");
+          selectedPixels.add(i);
+        }
+        selectedCountSpan.innerText = selectedPixels.size;
+      });
 
       pixelGrid.appendChild(div);
     }
+
+    // PayPal Button
+    paypal.Buttons({
+      createOrder: function(data, actions) {
+        const pixelCount = selectedPixels.size;
+        const totalAmount = (pixelCount * 1.5).toFixed(2);
+
+        if (pixelCount === 0) {
+          alert("Please select at least one pixel before proceeding.");
+          return;
+        }
+
+        return actions.order.create({
+          purchase_units: [{
+            amount: {
+              value: totalAmount
+            }
+          }]
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+          alert('✅ Payment complete by ' + details.payer.name.given_name);
+          // You can now show a form or redirect to upload logo
+        });
+      }
+    }).render('#paypal-button-container');
 
     // Fake Live Viewers
     const viewer = document.getElementById("viewerCount");
