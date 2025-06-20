@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Return of Million Dollar Homepage</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.paypal.com/sdk/js?client-id=AeEaJmreVA21maz2aNFi1FN-uXQQwD4VQxfq_WrVhSKwf0Ecs-t7SgSB5GZKvqAhvPNQu7FxH1e5tIIq&currency=USD"></script>
   <style>
     body {
       margin: 0;
@@ -42,23 +41,12 @@
       background-color: transparent !important;
       padding: 0;
     }
+    .selected {
+      background-color: #fbbf24 !important;
+    }
     .neon-glow {
       color: #00ffff;
       text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
-    }
-    .buy-btn {
-      background: linear-gradient(to right, #3b82f6, #9333ea);
-      padding: 12px 24px;
-      border-radius: 9999px;
-      color: white;
-      font-weight: bold;
-      font-size: 1rem;
-      margin-top: 1rem;
-      display: inline-block;
-      transition: transform 0.3s ease;
-    }
-    .buy-btn:hover {
-      transform: scale(1.05);
     }
   </style>
 </head>
@@ -69,8 +57,11 @@
     <p class="text-gray-300 text-sm md:text-base mb-6 px-4 max-w-xl mx-auto">
       100,000 interactive pixels. Click to explore brands. Be part of the viral wall.
     </p>
-    <div id="selectedInfo" class="text-white text-base mt-4">Selected Pixels: 0 | Total: $0.00</div>
-    <button id="buyBtn" class="buy-btn">Buy Now – $0</button>
+    <p class="text-sm text-white mb-2">Each pixel costs $1.5</p>
+    <p class="text-yellow-400 text-base font-semibold mb-4" id="selectedCount">Selected Pixels: 0 | Total: $0.00</p>
+    <button id="buyNowBtn" class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-3 rounded-full font-bold transition">
+      Buy Now – $0.00
+    </button>
     <p id="viewerCount" class="text-sm text-purple-400 mt-4"></p>
   </header>
 
@@ -84,12 +75,10 @@
 
   <script>
     document.getElementById("year").innerText = new Date().getFullYear();
+
     const pixelGrid = document.getElementById("pixelGrid");
-    const selectedPixels = new Set();
-    const pixelPrice = 1.5;
-    const buyBtn = document.getElementById("buyBtn");
-    const selectedInfo = document.getElementById("selectedInfo");
-    const googleFormLink = "https://forms.gle/iUbg2t7WRS1f7HuLA";
+    const selectedCountDisplay = document.getElementById("selectedCount");
+    const buyNowBtn = document.getElementById("buyNowBtn");
 
     const customers = [
       { logo: "https://logo.clearbit.com/monday.com", url: "https://monday.com" },
@@ -99,10 +88,11 @@
       { logo: "https://logo.clearbit.com/airbnb.com", url: "https://airbnb.com" }
     ];
 
+    let selectedPixels = [];
+
     for (let i = 0; i < 40000; i++) {
       const div = document.createElement("div");
       div.classList.add("pixel");
-      div.dataset.id = i;
 
       if (Math.random() < 0.02) {
         const customer = customers[Math.floor(Math.random() * customers.length)];
@@ -112,26 +102,31 @@
         div.addEventListener("click", () => {
           if (div.classList.contains("selected")) {
             div.classList.remove("selected");
-            div.style.backgroundColor = "#1e40af";
-            selectedPixels.delete(i);
+            selectedPixels = selectedPixels.filter(el => el !== i);
           } else {
             div.classList.add("selected");
-            div.style.backgroundColor = "#facc15";
-            selectedPixels.add(i);
+            selectedPixels.push(i);
           }
-          updateSelectedInfo();
+          updateBuyInfo();
         });
       }
 
       pixelGrid.appendChild(div);
     }
 
-    function updateSelectedInfo() {
-      const count = selectedPixels.size;
-      const total = (count * pixelPrice).toFixed(2);
-      selectedInfo.innerText = `Selected Pixels: ${count} | Total: $${total}`;
-      buyBtn.innerText = `Buy Now – $${total}`;
+    function updateBuyInfo() {
+      const count = selectedPixels.length;
+      const total = count * 1.5;
+      selectedCountDisplay.innerText = `Selected Pixels: ${count} | Total: $${total.toFixed(2)}`;
+      buyNowBtn.innerText = `Buy Now – $${total.toFixed(2)}`;
     }
+
+    buyNowBtn.addEventListener("click", () => {
+      const total = selectedPixels.length * 1.5;
+      if (total === 0) return alert("Please select at least 1 pixel.");
+      const paypalLink = `https://www.paypal.com/paypalme/orbitonmedia/${total.toFixed(2)}`;
+      window.open(paypalLink, "_blank");
+    });
 
     // Fake Live Viewers
     const viewer = document.getElementById("viewerCount");
@@ -144,31 +139,7 @@
     }
     setInterval(updateViewerCount, 5000);
     updateViewerCount();
-
-    // Buy button with PayPal integration
-    buyBtn.addEventListener("click", () => {
-      const total = (selectedPixels.size * pixelPrice).toFixed(2);
-      if (selectedPixels.size === 0) return alert("Please select at least one pixel.");
-
-      const container = document.createElement("div");
-      document.body.appendChild(container);
-
-      paypal.Buttons({
-        createOrder: (data, actions) => {
-          return actions.order.create({
-            purchase_units: [{
-              amount: { value: total }
-            }]
-          });
-        },
-        onApprove: (data, actions) => {
-          return actions.order.capture().then(details => {
-            alert("Payment complete! Redirecting to upload...");
-            window.location.href = googleFormLink;
-          });
-        }
-      }).render(container);
-    });
   </script>
+
 </body>
 </html>
