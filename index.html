@@ -103,7 +103,7 @@
       if (Math.random() < 0.02) {
         const customer = customers[Math.floor(Math.random() * customers.length)];
         div.classList.add("sold");
-        div.innerHTML = <a href="${customer.url}" target="_blank" rel="noopener"><img src="${customer.logo}" alt="logo" /></a>;
+        div.innerHTML = `<a href="${customer.url}" target="_blank" rel="noopener"><img src="${customer.logo}" alt="logo" /></a>`;
       } else {
         div.addEventListener("click", () => {
           if (div.classList.contains("selected")) {
@@ -114,8 +114,8 @@
             selectedPixels.push(i);
           }
           const price = (selectedPixels.length * 1.5).toFixed(2);
-          selectedCount.textContent = Selected Pixels: ${selectedPixels.length};
-          buyNowButton.textContent = Buy Now ($${price});
+          selectedCount.textContent = `Selected Pixels: ${selectedPixels.length}`;
+          buyNowButton.textContent = `Buy Now ($${price})`;
         });
       }
 
@@ -128,7 +128,7 @@
         return;
       }
       const amount = (selectedPixels.length * 1.5).toFixed(2);
-      const paypalUrl = https://www.paypal.com/checkoutnow?client-id=Ac97ydK3P6gj-Bolu8sLZzPB5woh53WVAmhvm5F5f-vbFCjHfliSqmIRtmJ_CgkB7g90yDikgZ4s-bnO&currency=USD&amount=${amount};
+      const paypalUrl = `https://www.paypal.com/checkoutnow?client-id=Ac97ydK3P6gj-Bolu8sLZzPB5woh53WVAmhvm5F5f-vbFCjHfliSqmIRtmJ_CgkB7g90yDikgZ4s-bnO&currency=USD&amount=${amount}`;
       window.open(paypalUrl, "_blank");
     });
 
@@ -138,7 +138,7 @@
       const uk = Math.floor(total * 0.33);
       const others = total - us - uk;
 
-      document.getElementById("viewerCount").innerHTML = 🔥 Live Visitors: ${total.toLocaleString()} | 🇺🇸 US: ${us.toLocaleString()} | 🇬🇧 UK: ${uk.toLocaleString()} | 🌍 Others: ${others.toLocaleString()};
+      document.getElementById("viewerCount").innerHTML = `🔥 Live Visitors: ${total.toLocaleString()} | 🇺🇸 US: ${us.toLocaleString()} | 🇬🇧 UK: ${uk.toLocaleString()} | 🌍 Others: ${others.toLocaleString()}`;
     }
     setInterval(updateViewerCount, 5000);
     updateViewerCount();
