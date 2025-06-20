@@ -37,16 +37,26 @@
       object-fit: cover;
       display: block;
     }
+    .selected {
+      background-color: #9333ea !important;
+    }
     .sold {
       background-color: transparent !important;
       padding: 0;
     }
-    .selected {
-      background-color: #fbbf24 !important;
-    }
     .neon-glow {
       color: #00ffff;
       text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
+    }
+    .paypal-btn {
+      background: linear-gradient(to right, #3b82f6, #9333ea);
+      padding: 12px 24px;
+      color: white;
+      font-weight: bold;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      margin-top: 16px;
     }
   </style>
 </head>
@@ -57,16 +67,13 @@
     <p class="text-gray-300 text-sm md:text-base mb-6 px-4 max-w-xl mx-auto">
       100,000 interactive pixels. Click to explore brands. Be part of the viral wall.
     </p>
-    <p class="text-sm text-white mb-2">Each pixel costs $1.5</p>
-    <p class="text-yellow-400 text-base font-semibold mb-4" id="selectedCount">Selected Pixels: 0 | Total: $0.00</p>
-    <button id="buyNowBtn" class="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-3 rounded-full font-bold transition">
-      Buy Now – $0.00
-    </button>
-    <p id="viewerCount" class="text-sm text-purple-400 mt-4"></p>
+    <p id="viewerCount" class="text-sm text-purple-400 mt-2"></p>
   </header>
 
-  <main class="overflow-x-auto px-2">
-    <div id="pixelGrid" class="pixel-grid"></div>
+  <main class="overflow-x-auto px-2 text-center">
+    <div id="pixelGrid" class="pixel-grid mb-4"></div>
+    <p id="selectedCount" class="text-lg text-green-400 mt-4">Selected Pixels: 0</p>
+    <button id="buyNow" class="paypal-btn">Buy Now ($0)</button>
   </main>
 
   <footer class="text-center text-gray-500 text-sm py-6">
@@ -75,10 +82,9 @@
 
   <script>
     document.getElementById("year").innerText = new Date().getFullYear();
-
     const pixelGrid = document.getElementById("pixelGrid");
-    const selectedCountDisplay = document.getElementById("selectedCount");
-    const buyNowBtn = document.getElementById("buyNowBtn");
+    const selectedCount = document.getElementById("selectedCount");
+    const buyNowButton = document.getElementById("buyNow");
 
     const customers = [
       { logo: "https://logo.clearbit.com/monday.com", url: "https://monday.com" },
@@ -97,49 +103,45 @@
       if (Math.random() < 0.02) {
         const customer = customers[Math.floor(Math.random() * customers.length)];
         div.classList.add("sold");
-        div.innerHTML = `<a href="${customer.url}" target="_blank" rel="noopener"><img src="${customer.logo}" alt="logo" /></a>`;
+        div.innerHTML = <a href="${customer.url}" target="_blank" rel="noopener"><img src="${customer.logo}" alt="logo" /></a>;
       } else {
         div.addEventListener("click", () => {
           if (div.classList.contains("selected")) {
             div.classList.remove("selected");
-            selectedPixels = selectedPixels.filter(el => el !== i);
+            selectedPixels = selectedPixels.filter(p => p !== i);
           } else {
             div.classList.add("selected");
             selectedPixels.push(i);
           }
-          updateBuyInfo();
+          const price = (selectedPixels.length * 1.5).toFixed(2);
+          selectedCount.textContent = Selected Pixels: ${selectedPixels.length};
+          buyNowButton.textContent = Buy Now ($${price});
         });
       }
 
       pixelGrid.appendChild(div);
     }
 
-    function updateBuyInfo() {
-      const count = selectedPixels.length;
-      const total = count * 1.5;
-      selectedCountDisplay.innerText = `Selected Pixels: ${count} | Total: $${total.toFixed(2)}`;
-      buyNowBtn.innerText = `Buy Now – $${total.toFixed(2)}`;
-    }
-
-    buyNowBtn.addEventListener("click", () => {
-      const total = selectedPixels.length * 1.5;
-      if (total === 0) return alert("Please select at least 1 pixel.");
-      const paypalLink = `https://www.paypal.com/paypalme/orbitonmedia/${total.toFixed(2)}`;
-      window.open(paypalLink, "_blank");
+    buyNowButton.addEventListener("click", () => {
+      if (selectedPixels.length === 0) {
+        alert("Please select some pixels before purchasing.");
+        return;
+      }
+      const amount = (selectedPixels.length * 1.5).toFixed(2);
+      const paypalUrl = https://www.paypal.com/checkoutnow?client-id=Ac97ydK3P6gj-Bolu8sLZzPB5woh53WVAmhvm5F5f-vbFCjHfliSqmIRtmJ_CgkB7g90yDikgZ4s-bnO&currency=USD&amount=${amount};
+      window.open(paypalUrl, "_blank");
     });
 
-    // Fake Live Viewers
-    const viewer = document.getElementById("viewerCount");
     function updateViewerCount() {
       const total = Math.floor(Math.random() * (16000 - 12500 + 1)) + 12500;
       const us = Math.floor(total * 0.41);
       const uk = Math.floor(total * 0.33);
       const others = total - us - uk;
-      viewer.innerHTML = `🔥 Live Visitors: ${total.toLocaleString()} | 🇺🇸 US: ${us.toLocaleString()} | 🇬🇧 UK: ${uk.toLocaleString()} | 🌍 Others: ${others.toLocaleString()}`;
+
+      document.getElementById("viewerCount").innerHTML = 🔥 Live Visitors: ${total.toLocaleString()} | 🇺🇸 US: ${us.toLocaleString()} | 🇬🇧 UK: ${uk.toLocaleString()} | 🌍 Others: ${others.toLocaleString()};
     }
     setInterval(updateViewerCount, 5000);
     updateViewerCount();
   </script>
-
 </body>
 </html>
