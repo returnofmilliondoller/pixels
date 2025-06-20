@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Return of Million Dollar Homepage</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=AeEaJmreVA21maz2aNFi1FN-uXQQwD4VQxfq_WrVhSKwf0Ecs-t7SgSB5GZKvqAhvPNQu7FxH1e5tIIq&currency=USD"></script>
   <style>
     body {
       margin: 0;
@@ -37,9 +38,6 @@
       object-fit: cover;
       display: block;
     }
-    .selected {
-      background-color: #9333ea !important;
-    }
     .sold {
       background-color: transparent !important;
       padding: 0;
@@ -48,32 +46,25 @@
       color: #00ffff;
       text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
     }
-    .paypal-btn {
-      background: linear-gradient(to right, #3b82f6, #9333ea);
-      padding: 12px 24px;
-      color: white;
-      font-weight: bold;
-      border-radius: 9999px;
-      border: none;
-      cursor: pointer;
-      margin-top: 16px;
-    }
   </style>
 </head>
 <body>
 
-  <header class="text-center py-10">
+  <header class="text-center py-6">
     <h1 class="text-4xl md:text-6xl font-bold neon-glow mb-2">Return of Million Dollar Homepage</h1>
     <p class="text-gray-300 text-sm md:text-base mb-6 px-4 max-w-xl mx-auto">
       100,000 interactive pixels. Click to explore brands. Be part of the viral wall.
     </p>
+    <p class="text-sm text-white mb-2">Each pixel costs <strong>$1.5</strong></p>
+    <p class="text-sm text-yellow-400 mb-4" id="pixelCount">Selected Pixels: 0 | Total: $0.00</p>
+
+    <div id="paypal-button-container" class="mb-6 flex justify-center"></div>
+
     <p id="viewerCount" class="text-sm text-purple-400 mt-2"></p>
   </header>
 
-  <main class="overflow-x-auto px-2 text-center">
-    <div id="pixelGrid" class="pixel-grid mb-4"></div>
-    <p id="selectedCount" class="text-lg text-green-400 mt-4">Selected Pixels: 0</p>
-    <button id="buyNow" class="paypal-btn">Buy Now ($0)</button>
+  <main class="overflow-x-auto px-2">
+    <div id="pixelGrid" class="pixel-grid"></div>
   </main>
 
   <footer class="text-center text-gray-500 text-sm py-6">
@@ -82,66 +73,76 @@
 
   <script>
     document.getElementById("year").innerText = new Date().getFullYear();
+
     const pixelGrid = document.getElementById("pixelGrid");
-    const selectedCount = document.getElementById("selectedCount");
-    const buyNowButton = document.getElementById("buyNow");
-
-    const customers = [
-      { logo: "https://logo.clearbit.com/monday.com", url: "https://monday.com" },
-      { logo: "https://logo.clearbit.com/clickup.com", url: "https://clickup.com" },
-      { logo: "https://logo.clearbit.com/semrush.com", url: "https://semrush.com" },
-      { logo: "https://logo.clearbit.com/hubspot.com", url: "https://hubspot.com" },
-      { logo: "https://logo.clearbit.com/airbnb.com", url: "https://airbnb.com" }
-    ];
-
-    let selectedPixels = [];
+    const pixelCountDisplay = document.getElementById("pixelCount");
+    const selectedPixelIds = new Set();
+    const customers = [];
 
     for (let i = 0; i < 40000; i++) {
       const div = document.createElement("div");
       div.classList.add("pixel");
+      div.dataset.id = i;
 
-      if (Math.random() < 0.02) {
-        const customer = customers[Math.floor(Math.random() * customers.length)];
-        div.classList.add("sold");
-        div.innerHTML = `<a href="${customer.url}" target="_blank" rel="noopener"><img src="${customer.logo}" alt="logo" /></a>`;
-      } else {
-        div.addEventListener("click", () => {
-          if (div.classList.contains("selected")) {
-            div.classList.remove("selected");
-            selectedPixels = selectedPixels.filter(p => p !== i);
-          } else {
-            div.classList.add("selected");
-            selectedPixels.push(i);
-          }
-          const price = (selectedPixels.length * 1.5).toFixed(2);
-          selectedCount.textContent = `Selected Pixels: ${selectedPixels.length}`;
-          buyNowButton.textContent = `Buy Now ($${price})`;
-        });
-      }
+      div.addEventListener("click", () => {
+        if (div.classList.contains("sold")) return;
+        if (selectedPixelIds.has(i)) {
+          selectedPixelIds.delete(i);
+          div.style.border = "none";
+        } else {
+          selectedPixelIds.add(i);
+          div.style.border = "1px solid white";
+        }
+        const total = selectedPixelIds.size * 1.5;
+        pixelCountDisplay.innerText = `Selected Pixels: ${selectedPixelIds.size} | Total: $${total.toFixed(2)}`;
+      });
 
       pixelGrid.appendChild(div);
     }
 
-    buyNowButton.addEventListener("click", () => {
-      if (selectedPixels.length === 0) {
-        alert("Please select some pixels before purchasing.");
-        return;
+    // PayPal Button
+    paypal.Buttons({
+      createOrder: function(data, actions) {
+        const total = selectedPixelIds.size * 1.5;
+        if (total === 0) {
+          alert("Please select at least 1 pixel to continue.");
+          return;
+        }
+        return actions.order.create({
+          purchase_units: [{
+            amount: {
+              value: total.toFixed(2)
+            }
+          }]
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+          alert('Payment successful! Redirecting to the upload form...');
+          window.location.href = "https://forms.gle/iUbg2t7WRS1f7HuLA";
+        });
+      },
+      onCancel: function () {
+        alert('Payment cancelled.');
+      },
+      onError: function (err) {
+        console.error(err);
+        alert('Something went wrong during payment.');
       }
-      const amount = (selectedPixels.length * 1.5).toFixed(2);
-      const paypalUrl = `https://www.paypal.com/checkoutnow?client-id=Ac97ydK3P6gj-Bolu8sLZzPB5woh53WVAmhvm5F5f-vbFCjHfliSqmIRtmJ_CgkB7g90yDikgZ4s-bnO&currency=USD&amount=${amount}`;
-      window.open(paypalUrl, "_blank");
-    });
+    }).render('#paypal-button-container');
 
+    // Fake Live Viewers
+    const viewer = document.getElementById("viewerCount");
     function updateViewerCount() {
       const total = Math.floor(Math.random() * (16000 - 12500 + 1)) + 12500;
       const us = Math.floor(total * 0.41);
       const uk = Math.floor(total * 0.33);
       const others = total - us - uk;
-
-      document.getElementById("viewerCount").innerHTML = `🔥 Live Visitors: ${total.toLocaleString()} | 🇺🇸 US: ${us.toLocaleString()} | 🇬🇧 UK: ${uk.toLocaleString()} | 🌍 Others: ${others.toLocaleString()}`;
+      viewer.innerHTML = `🔥 Live Visitors: ${total.toLocaleString()} | 🇺🇸 US: ${us.toLocaleString()} | 🇬🇧 UK: ${uk.toLocaleString()} | 🌍 Others: ${others.toLocaleString()}`;
     }
     setInterval(updateViewerCount, 5000);
     updateViewerCount();
   </script>
+
 </body>
 </html>
