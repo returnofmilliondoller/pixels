@@ -4,8 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Return of Million Dollar Homepage</title>
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.paypal.com/sdk/js?client-id=AeEaJmreVA21maz2aNFi1FN-uXQQwD4VQxfq_WrVhSKwf0Ecs-t7SgSB5GZKvqAhvPNQu7FxH1e5tIIq&currency=USD"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -48,18 +54,14 @@
     }
   </style>
 </head>
-<body>
 
+<body>
   <header class="text-center py-6">
     <h1 class="text-4xl md:text-6xl font-bold neon-glow mb-2">Return of Million Dollar Homepage</h1>
     <p class="text-gray-300 text-sm md:text-base mb-6 px-4 max-w-xl mx-auto">
       100,000 interactive pixels. Click to explore brands. Be part of the viral wall.
     </p>
     <p class="text-sm text-white mb-2">Each pixel costs <strong>$1.5</strong></p>
-    <p class="text-sm text-yellow-400 mb-4" id="pixelCount">Selected Pixels: 0 | Total: $0.00</p>
-
-    <div id="paypal-button-container" class="mb-6 flex justify-center"></div>
-
     <p id="viewerCount" class="text-sm text-purple-400 mt-2"></p>
   </header>
 
@@ -71,78 +73,61 @@
     &copy; <span id="year"></span> 100K Pixels – Built with nostalgia.
   </footer>
 
+  <!-- Initialize Firebase -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCY8_tUTZPRROclSVBoGvfkIR4VQEkNe44",
+      authDomain: "pixel-a99c5.firebaseapp.com",
+      projectId: "pixel-a99c5",
+      storageBucket: "pixel-a99c5.firebasestorage.app",
+      messagingSenderId: "954156725764",
+      appId: "1:954156725764:web:55508a0278aea048f9a751",
+      measurementId: "G-5Z32WGXEXV"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+
+  <!-- Pixel Grid & Live Viewers Script -->
   <script>
     document.getElementById("year").innerText = new Date().getFullYear();
 
     const pixelGrid = document.getElementById("pixelGrid");
-    const pixelCountDisplay = document.getElementById("pixelCount");
-    const selectedPixelIds = new Set();
-    const customers = [];
 
+    // Step 1: Create empty 40,000 pixel grid
     for (let i = 0; i < 40000; i++) {
       const div = document.createElement("div");
       div.classList.add("pixel");
       div.dataset.id = i;
-
-      div.addEventListener("click", () => {
-        if (div.classList.contains("sold")) return;
-        if (selectedPixelIds.has(i)) {
-          selectedPixelIds.delete(i);
-          div.style.border = "none";
-        } else {
-          selectedPixelIds.add(i);
-          div.style.border = "1px solid white";
-        }
-        const total = selectedPixelIds.size * 1.5;
-        pixelCountDisplay.innerText = `Selected Pixels: ${selectedPixelIds.size} | Total: $${total.toFixed(2)}`;
-      });
-
       pixelGrid.appendChild(div);
     }
 
-    // PayPal Button
-    paypal.Buttons({
-      createOrder: function(data, actions) {
-        const total = selectedPixelIds.size * 1.5;
-        if (total === 0) {
-          alert("Please select at least 1 pixel to continue.");
-          return;
+    // Step 2: Fetch sold pixel data from Firestore
+    db.collection("pixels").get().then(snapshot => {
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const pixelId = doc.id;
+        const pixelElement = document.querySelector(`.pixel[data-id='${pixelId}']`);
+        if (pixelElement && data.logo && data.url) {
+          pixelElement.classList.add("sold");
+          pixelElement.innerHTML = `<a href="${data.url}" target="_blank" rel="noopener"><img src="${data.logo}" alt="Logo" /></a>`;
         }
-        return actions.order.create({
-          purchase_units: [{
-            amount: {
-              value: total.toFixed(2)
-            }
-          }]
-        });
-      },
-      onApprove: function(data, actions) {
-        return actions.order.capture().then(function(details) {
-          alert('Payment successful! Redirecting to the upload form...');
-          window.location.href = "https://forms.gle/iUbg2t7WRS1f7HuLA";
-        });
-      },
-      onCancel: function () {
-        alert('Payment cancelled.');
-      },
-      onError: function (err) {
-        console.error(err);
-        alert('Something went wrong during payment.');
-      }
-    }).render('#paypal-button-container');
+      });
+    });
 
-    // Fake Live Viewers
+    // Step 3: Fake viewer count
     const viewer = document.getElementById("viewerCount");
     function updateViewerCount() {
       const total = Math.floor(Math.random() * (16000 - 12500 + 1)) + 12500;
       const us = Math.floor(total * 0.41);
       const uk = Math.floor(total * 0.33);
       const others = total - us - uk;
+
       viewer.innerHTML = `🔥 Live Visitors: ${total.toLocaleString()} | 🇺🇸 US: ${us.toLocaleString()} | 🇬🇧 UK: ${uk.toLocaleString()} | 🌍 Others: ${others.toLocaleString()}`;
     }
     setInterval(updateViewerCount, 5000);
     updateViewerCount();
   </script>
-
 </body>
 </html>
