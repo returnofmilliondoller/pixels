@@ -4,17 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Return of Million Dollar Homepage</title>
-
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- PayPal SDK -->
   <script src="https://www.paypal.com/sdk/js?client-id=AeEaJmreVA21maz2aNFi1FN-uXQQwD4VQxfq_WrVhSKwf0Ecs-t7SgSB5GZKvqAhvPNQu7FxH1e5tIIq&currency=USD"></script>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
   <style>
     body {
       margin: 0;
@@ -67,7 +58,6 @@
     <p class="text-sm text-white mb-2">Each pixel costs <strong>$1.5</strong></p>
     <p class="text-sm text-yellow-400 mb-4" id="pixelCount">Selected Pixels: 0 | Total: $0.00</p>
 
-    <!-- PayPal Button Container -->
     <div id="paypal-button-container" class="mb-6 flex justify-center"></div>
 
     <p id="viewerCount" class="text-sm text-purple-400 mt-2"></p>
@@ -81,23 +71,6 @@
     &copy; <span id="year"></span> 100K Pixels – Built with nostalgia.
   </footer>
 
-  <!-- Firebase Initialization -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCY8_tUTZPRROclSVBoGvfkIR4VQEkNe44",
-      authDomain: "pixel-a99c5.firebaseapp.com",
-      projectId: "pixel-a99c5",
-      storageBucket: "pixel-a99c5.firebasestorage.app",
-      messagingSenderId: "954156725764",
-      appId: "1:954156725764:web:55508a0278aea048f9a751",
-      measurementId: "G-5Z32WGXEXV"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-  </script>
-
-  <!-- Main Script -->
   <script>
     document.getElementById("year").innerText = new Date().getFullYear();
 
@@ -105,42 +78,42 @@
     const pixelCountDisplay = document.getElementById("pixelCount");
     const selectedPixelIds = new Set();
 
-    // Step 1: Render 40K grid
+    const customers = [
+      { logo: "https://logo.clearbit.com/monday.com", url: "https://monday.com" },
+      { logo: "https://logo.clearbit.com/clickup.com", url: "https://clickup.com" },
+      { logo: "https://logo.clearbit.com/semrush.com", url: "https://semrush.com" },
+      { logo: "https://logo.clearbit.com/hubspot.com", url: "https://hubspot.com" },
+      { logo: "https://logo.clearbit.com/airbnb.com", url: "https://airbnb.com" }
+    ];
+
     for (let i = 0; i < 40000; i++) {
       const div = document.createElement("div");
       div.classList.add("pixel");
       div.dataset.id = i;
 
-      div.addEventListener("click", () => {
-        if (div.classList.contains("sold")) return;
-        if (selectedPixelIds.has(i)) {
-          selectedPixelIds.delete(i);
-          div.style.border = "none";
-        } else {
-          selectedPixelIds.add(i);
-          div.style.border = "1px solid white";
-        }
-        const total = selectedPixelIds.size * 1.5;
-        pixelCountDisplay.innerText = `Selected Pixels: ${selectedPixelIds.size} | Total: $${total.toFixed(2)}`;
-      });
+      if (Math.random() < 0.01) {
+        const customer = customers[Math.floor(Math.random() * customers.length)];
+        div.classList.add("sold");
+        div.innerHTML = `<a href="${customer.url}" target="_blank" rel="noopener"><img src="${customer.logo}" alt="logo" /></a>`;
+      } else {
+        div.addEventListener("click", () => {
+          if (div.classList.contains("sold")) return;
+          if (selectedPixelIds.has(i)) {
+            selectedPixelIds.delete(i);
+            div.style.border = "none";
+          } else {
+            selectedPixelIds.add(i);
+            div.style.border = "1px solid white";
+          }
+          const total = selectedPixelIds.size * 1.5;
+          pixelCountDisplay.innerText = `Selected Pixels: ${selectedPixelIds.size} | Total: $${total.toFixed(2)}`;
+        });
+      }
 
       pixelGrid.appendChild(div);
     }
 
-    // Step 2: Load sold pixels from Firestore
-    db.collection("pixels").get().then(snapshot => {
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const pixelId = doc.id;
-        const pixelElement = document.querySelector(`.pixel[data-id='${pixelId}']`);
-        if (pixelElement && data.logo && data.url) {
-          pixelElement.classList.add("sold");
-          pixelElement.innerHTML = `<a href="${data.url}" target="_blank"><img src="${data.logo}" alt="Logo" /></a>`;
-        }
-      });
-    });
-
-    // Step 3: PayPal Button Logic
+    // PayPal Button
     paypal.Buttons({
       createOrder: function(data, actions) {
         const total = selectedPixelIds.size * 1.5;
@@ -158,22 +131,22 @@
       },
       onApprove: function(data, actions) {
         return actions.order.capture().then(function(details) {
-          alert('Payment successful! Redirecting to upload form...');
-          const pixelList = Array.from(selectedPixelIds).join(",");
-          const formLink = `https://forms.gle/iUbg2t7WRS1f7HuLA?usp=pp_url&entry.1234567890=${pixelList}`;
+          alert('Payment successful! Redirecting to the upload form...');
+          const pixelCount = selectedPixelIds.size;
+          const formLink = `https://docs.google.com/forms/d/e/1FAIpQLSf-VbSRxiSihC-TepZUF42GSyyYTXe_H9e0mLywOpEZqG-JyA/viewform?usp=pp_url&entry.287720249=${pixelCount}`;
           window.location.href = formLink;
         });
       },
-      onCancel: function() {
-        alert("Payment cancelled.");
+      onCancel: function () {
+        alert('Payment cancelled.');
       },
-      onError: function(err) {
+      onError: function (err) {
         console.error(err);
-        alert("Something went wrong.");
+        alert('Something went wrong during payment.');
       }
     }).render('#paypal-button-container');
 
-    // Fake Viewer Count
+    // Fake Live Viewers
     const viewer = document.getElementById("viewerCount");
     function updateViewerCount() {
       const total = Math.floor(Math.random() * (16000 - 12500 + 1)) + 12500;
@@ -185,5 +158,6 @@
     setInterval(updateViewerCount, 5000);
     updateViewerCount();
   </script>
+
 </body>
 </html>
