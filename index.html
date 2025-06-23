@@ -53,18 +53,13 @@
   );
 
   document.getElementById("year").innerText = new Date().getFullYear();
-
   const pixelGrid = document.getElementById("pixelGrid");
   const pixelCountDisplay = document.getElementById("pixelCount");
   const selectedPixelIds = new Set();
 
-  // Load purchased pixels from Supabase
   async function loadPurchasedPixels() {
     const { data, error } = await supabase.from("pixels").select("*");
-    if (error) {
-      console.error("Error loading pixels:", error);
-      return;
-    }
+    if (error) console.error("Error loading pixels:", error);
 
     data.forEach(({ pixel_id, logo_url, link }) => {
       const pixel = document.querySelector(`.pixel[data-id='${pixel_id}']`);
@@ -75,13 +70,11 @@
     });
   }
 
-  // Create 40K pixels
   for (let i = 0; i < 40000; i++) {
     const div = document.createElement("div");
     div.classList.add("pixel");
     div.dataset.id = i;
 
-    // Fixed images for cat and Steve Jobs
     if (i < 10) {
       div.innerHTML = `<img src="https://i.imgur.com/V7oJgYV.jpeg" alt="Cat" />`;
       div.classList.add("sold");
@@ -108,7 +101,6 @@
 
   loadPurchasedPixels();
 
-  // PayPal integration
   paypal.Buttons({
     createOrder: function(data, actions) {
       const total = selectedPixelIds.size * 1.5;
@@ -142,7 +134,7 @@
         link, 
         email, 
         name, 
-        createde_at: now 
+        created_at: now 
       }]);
     }
 
@@ -163,5 +155,6 @@
   setInterval(updateViewerCount, 5000);
   updateViewerCount();
 </script>
+
 </body>
 </html>
