@@ -8,102 +8,76 @@
   <script src="https://www.paypal.com/sdk/js?client-id=AeEaJmreVA21maz2aNFi1FN-uXQQwD4VQxfq_WrVhSKwf0Ecs-t7SgSB5GZKvqAhvPNQu7FxH1e5tIIq&currency=USD"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <style>
-    body { margin: 0; background: black; font-family: sans-serif; color: white; }
-    .pixel-grid { display: grid; grid-template-columns: repeat(200, 1fr); gap: 1px; width: 100%; max-width: 100%; margin: 0 auto; overflow-x: auto; }
+    body { margin: 0; background-color: black; font-family: sans-serif; color: white; }
+    .pixel-grid { display: grid; grid-template-columns: repeat(200, 1fr); gap: 1px; width: 100%; margin: 0 auto; }
     .pixel { width: 10px; height: 10px; background: #1e40af; transition: background 0.3s; }
     .pixel:hover { background: #3b82f6; cursor: pointer; }
     .pixel img { width: 100%; height: 100%; object-fit: cover; }
     .sold { background: transparent !important; padding: 0; }
     .neon-glow { color: #00ffff; text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 20px #ff00ff; }
+    input, button { margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
-<header class="text-center py-6">
-  <h1 class="text-4xl font-bold neon-glow mb-2">Return of Million Dollar Homepage</h1>
-  <p class="text-gray-300 text-sm mb-2">100,000 interactive pixels. Click to explore brands. Be part of the viral wall.</p>
-  <p class="text-sm">Each pixel costs <strong>$1.5</strong></p>
-  <p id="pixelCount" class="text-yellow-400 text-sm">Selected Pixels: 0 | Total: $0.00</p>
-  <div id="paypal-button-container" class="my-4 flex justify-center"></div>
-  <p id="viewerCount" class="text-sm text-purple-400"></p>
-</header>
+  <header class="text-center py-6">
+    <h1 class="text-4xl font-bold neon-glow mb-2">Return of Million Dollar Homepage</h1>
+    <p class="text-gray-300 text-sm mb-2">100,000 interactive pixels. Click to explore brands. Be part of the viral wall.</p>
+    <p class="text-sm">Each pixel costs <strong>$1.5</strong></p>
+    <p id="pixelCount" class="text-yellow-400 text-sm">Selected Pixels: 0 | Total: $0.00</p>
+    <div id="paypal-button-container" class="my-4 flex justify-center"></div>
+    <p id="viewerCount" class="text-sm text-purple-400 mt-2"></p>
+  </header>
 
-<main class="overflow-x-auto px-2">
-  <div id="pixelGrid" class="pixel-grid"></div>
-</main>
+  <main class="overflow-x-auto px-2">
+    <div id="pixelGrid" class="pixel-grid"></div>
+  </main>
 
-<!-- Upload Form -->
-<div id="uploadForm" class="hidden text-center py-6">
-  <h2 class="text-lg mb-2">Upload your logo and website link</h2>
-  <input type="text" id="name" placeholder="Your Name" class="text-black mb-2 px-2" /><br>
-  <input type="email" id="email" placeholder="Email" class="text-black mb-2 px-2" /><br>
-  <input type="url" id="link" placeholder="Your Website Link" class="text-black mb-2 px-2" /><br>
-  <input type="url" id="logo" placeholder="Logo Image URL" class="text-black mb-2 px-2" /><br>
-  <button onclick="submitUpload()" class="bg-green-500 px-4 py-2 rounded">Submit</button>
-</div>
+  <!-- Upload Form -->
+  <div id="uploadForm" class="hidden text-center py-6">
+    <h2 class="text-lg mb-2">Upload your logo and website link</h2>
+    <input type="text" id="name" placeholder="Your Name" class="text-black px-2"><br>
+    <input type="email" id="email" placeholder="Email" class="text-black px-2"><br>
+    <input type="url" id="link" placeholder="Website Link" class="text-black px-2"><br>
+    <input type="url" id="logo" placeholder="Logo Image URL" class="text-black px-2"><br>
+    <button onclick="submitUpload()" class="bg-green-500 px-4 py-2 rounded">Submit</button>
+  </div>
 
-<footer class="text-center text-gray-500 text-sm py-6">
-  &copy; <span id="year"></span> 100K Pixels – Built with nostalgia.
-</footer>
+  <footer class="text-center text-gray-500 text-sm py-6">
+    &copy; <span id="year"></span> 100K Pixels – Built with nostalgia.
+  </footer>
 
-<script>
-  // Supabase config
-  const supabase = supabase.createClient(
-    "https://kpooskfpjhepexgdbavw.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtwb29za2ZwamhlcGV4Z2RiYXZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2NjcyMzcsImV4cCI6MjA2NjI0MzIzN30.aKPBs3o0VYyOMmlCpaA7620nWVOxZyKZKv0mqsEszZk"
-  );
+  <script>
+    // Initialize Supabase
+    const supabase = supabase.createClient(
+      "https://kpooskfpjhepexgdbavw.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtwb29za2ZwamhlcGV4Z2RiYXZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2NjcyMzcsImV4cCI6MjA2NjI0MzIzN30.aKPBs3o0VYyOMmlCpaA7620nWVOxZyKZKv0mqsEszZk"
+    );
 
-  document.getElementById("year").innerText = new Date().getFullYear();
+    document.getElementById("year").innerText = new Date().getFullYear();
+    const pixelGrid = document.getElementById("pixelGrid");
+    const pixelCountDisplay = document.getElementById("pixelCount");
+    const selectedPixelIds = new Set();
 
-  const pixelGrid = document.getElementById("pixelGrid");
-  const pixelCountDisplay = document.getElementById("pixelCount");
-  const selectedPixelIds = new Set();
-
-  // Fixed: 10 Cat + 10 Steve Jobs
-  const fixedPixels = {
-    50: "https://placekitten.com/50/50", // cat
-    51: "https://placekitten.com/51/50",
-    52: "https://placekitten.com/52/50",
-    53: "https://placekitten.com/53/50",
-    54: "https://placekitten.com/54/50",
-    55: "https://placekitten.com/55/50",
-    56: "https://placekitten.com/56/50",
-    57: "https://placekitten.com/57/50",
-    58: "https://placekitten.com/58/50",
-    59: "https://placekitten.com/59/50",
-    100: "https://upload.wikimedia.org/wikipedia/commons/1/1f/Steve_Jobs_Headshot_2010-CROP.jpg",
-    101: "https://upload.wikimedia.org/wikipedia/commons/1/1f/Steve_Jobs_Headshot_2010-CROP.jpg",
-    102: "https://upload.wikimedia.org/wikipedia/commons/1/1f/Steve_Jobs_Headshot_2010-CROP.jpg",
-    103: "https://upload.wikimedia.org/wikipedia/commons/1/1f/Steve_Jobs_Headshot_2010-CROP.jpg",
-    104: "https://upload.wikimedia.org/wikipedia/commons/1/1f/Steve_Jobs_Headshot_2010-CROP.jpg",
-    105: "https://upload.wikimedia.org/wikipedia/commons/1/1f/Steve_Jobs_Headshot_2010-CROP.jpg",
-    106: "https://upload.wikimedia.org/wikipedia/commons/1/1f/Steve_Jobs_Headshot_2010-CROP.jpg",
-    107: "https://upload.wikimedia.org/wikipedia/commons/1/1f/Steve_Jobs_Headshot_2010-CROP.jpg",
-    108: "https://upload.wikimedia.org/wikipedia/commons/1/1f/Steve_Jobs_Headshot_2010-CROP.jpg",
-    109: "https://upload.wikimedia.org/wikipedia/commons/1/1f/Steve_Jobs_Headshot_2010-CROP.jpg"
-  };
-
-  async function loadPurchasedPixels() {
-    const { data, error } = await supabase.from("pixels").select("*");
-    if (error) return console.error("Error loading:", error);
-    data.forEach(({ pixel_id, logo_url, link }) => {
-      const pixel = document.querySelector(`.pixel[data-id='${pixel_id}']`);
-      if (pixel) {
-        pixel.innerHTML = `<a href="${link}" target="_blank"><img src="${logo_url}" /></a>`;
-        pixel.classList.add("sold");
+    async function loadPurchasedPixels() {
+      const { data, error } = await supabase.from("pixels").select("*");
+      if (error) {
+        console.error("Error loading pixels:", error);
+        return;
       }
-    });
-  }
+      data.forEach(({ pixel_id, logo_url, link }) => {
+        const pixel = document.querySelector(`.pixel[data-id='${pixel_id}']`);
+        if (pixel) {
+          pixel.innerHTML = `<a href="${link}" target="_blank"><img src="${logo_url}" alt="logo"/></a>`;
+          pixel.classList.add("sold");
+        }
+      });
+    }
 
-  for (let i = 0; i < 40000; i++) {
-    const div = document.createElement("div");
-    div.classList.add("pixel");
-    div.dataset.id = i;
-
-    if (fixedPixels[i]) {
-      div.innerHTML = `<img src="${fixedPixels[i]}" />`;
-      div.classList.add("sold");
-    } else {
+    for (let i = 0; i < 40000; i++) {
+      const div = document.createElement("div");
+      div.classList.add("pixel");
+      div.dataset.id = i;
       div.addEventListener("click", () => {
         if (div.classList.contains("sold")) return;
         if (selectedPixelIds.has(i)) {
@@ -116,68 +90,66 @@
         const total = selectedPixelIds.size * 1.5;
         pixelCountDisplay.innerText = `Selected Pixels: ${selectedPixelIds.size} | Total: $${total.toFixed(2)}`;
       });
+      pixelGrid.appendChild(div);
     }
 
-    pixelGrid.appendChild(div);
-  }
+    loadPurchasedPixels();
 
-  loadPurchasedPixels();
-
-  paypal.Buttons({
-    createOrder: function(data, actions) {
-      const total = selectedPixelIds.size * 1.5;
-      if (total === 0) {
-        alert("Please select at least 1 pixel.");
-        return;
+    paypal.Buttons({
+      createOrder: function(data, actions) {
+        const total = selectedPixelIds.size * 1.5;
+        if (total === 0) {
+          alert("Please select at least 1 pixel.");
+          return;
+        }
+        return actions.order.create({
+          purchase_units: [{
+            amount: { value: total.toFixed(2) }
+          }]
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+          alert("Payment successful. Now upload your logo & link.");
+          document.getElementById("uploadForm").classList.remove("hidden");
+        });
       }
-      return actions.order.create({
-        purchase_units: [{
-          amount: { value: total.toFixed(2) }
-        }]
-      });
-    },
-    onApprove: function(data, actions) {
-      return actions.order.capture().then(function() {
-        alert("Payment successful. Now upload your logo & link.");
-        document.getElementById("uploadForm").classList.remove("hidden");
-      });
-    }
-  }).render('#paypal-button-container');
+    }).render('#paypal-button-container');
 
-  async function submitUpload() {
-    const logo = document.getElementById("logo").value;
-    const link = document.getElementById("link").value;
-    const email = document.getElementById("email").value;
-    const name = document.getElementById("name").value;
-    const now = new Date().toISOString();
+    async function submitUpload() {
+      const logo = document.getElementById("logo").value;
+      const link = document.getElementById("link").value;
+      const email = document.getElementById("email").value;
+      const name = document.getElementById("name").value;
+      const now = new Date().toISOString();
 
-    for (const pixelId of selectedPixelIds) {
-      await supabase.from("pixels").insert([{ 
-        pixel_id: pixelId, 
-        logo_url: logo, 
-        link, 
-        email, 
-        name, 
-        created_at: now 
-      }]);
+      for (const pixelId of selectedPixelIds) {
+        await supabase.from("pixels").insert([{ 
+          pixel_id: pixelId, 
+          logo_url: logo, 
+          link, 
+          email, 
+          name, 
+          created_at: now 
+        }]);
+      }
+
+      alert("Upload successful! Refreshing pixels...");
+      selectedPixelIds.clear();
+      location.reload();
     }
 
-    alert("Upload successful! Refreshing...");
-    selectedPixelIds.clear();
-    location.reload();
-  }
+    function updateViewerCount() {
+      const total = Math.floor(Math.random() * (16000 - 12500 + 1)) + 12500;
+      const us = Math.floor(total * 0.41);
+      const uk = Math.floor(total * 0.33);
+      const others = total - us - uk;
+      document.getElementById("viewerCount").innerHTML = `🔥 Live Visitors: ${total.toLocaleString()} | 🇺🇸 US: ${us} | 🇬🇧 UK: ${uk} | 🌍 Others: ${others}`;
+    }
 
-  function updateViewerCount() {
-    const total = Math.floor(Math.random() * (16000 - 12500 + 1)) + 12500;
-    const us = Math.floor(total * 0.41);
-    const uk = Math.floor(total * 0.33);
-    const others = total - us - uk;
-    document.getElementById("viewerCount").innerHTML = `🔥 Live Visitors: ${total.toLocaleString()} | 🇺🇸 US: ${us} | 🇬🇧 UK: ${uk} | 🌍 Others: ${others}`;
-  }
-
-  setInterval(updateViewerCount, 5000);
-  updateViewerCount();
-</script>
+    setInterval(updateViewerCount, 5000);
+    updateViewerCount();
+  </script>
 
 </body>
 </html>
