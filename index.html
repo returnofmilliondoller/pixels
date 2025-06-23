@@ -47,7 +47,8 @@
 </footer>
 
 <script>
-  const supabase = supabase.createClient(
+  const { createClient } = supabase;
+  const supabaseClient = createClient(
     "https://kpooskfpjhepexgdbavw.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtwb29za2ZwamhlcGV4Z2RiYXZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2NjcyMzcsImV4cCI6MjA2NjI0MzIzN30.aKPBs3o0VYyOMmlCpaA7620nWVOxZyKZKv0mqsEszZk"
   );
@@ -58,7 +59,7 @@
   const selectedPixelIds = new Set();
 
   async function loadPurchasedPixels() {
-    const { data, error } = await supabase.from("pixels").select("*");
+    const { data, error } = await supabaseClient.from("pixels").select("*");
     if (error) console.error("Error loading pixels:", error);
 
     data.forEach(({ pixel_id, logo_url, link }) => {
@@ -75,6 +76,7 @@
     div.classList.add("pixel");
     div.dataset.id = i;
 
+    // Showcase examples
     if (i < 10) {
       div.innerHTML = `<img src="https://i.imgur.com/V7oJgYV.jpeg" alt="Cat" />`;
       div.classList.add("sold");
@@ -128,7 +130,7 @@
     const now = new Date().toISOString();
 
     for (const pixelId of selectedPixelIds) {
-      await supabase.from("pixels").insert([{ 
+      const { error } = await supabaseClient.from("pixels").upsert([{ 
         pixel_id: pixelId, 
         logo_url: logo, 
         link, 
@@ -136,9 +138,14 @@
         name, 
         created_at: now 
       }]);
+      if (error) {
+        console.error(error);
+        alert("Error submitting pixel: " + error.message);
+        return;
+      }
     }
 
-    alert("Upload successful! Refreshing pixels...");
+    alert("Upload successful! Refreshing...");
     selectedPixelIds.clear();
     location.reload();
   }
@@ -155,6 +162,5 @@
   setInterval(updateViewerCount, 5000);
   updateViewerCount();
 </script>
-
 </body>
 </html>
